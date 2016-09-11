@@ -8,24 +8,26 @@ module Preservation
       super
     end
 
-    # Fetch a batch of dataset metadata records. For each one, if necessary,
+    # For each uuid, if necessary, fetch the metadata,
     # prepare a directory in the ingest path and populate it with the files and
     # JSON description file.
     #
-    # @param limit [Integer] paging limit for metadata records over HTTP
-    # @param offset [Integer] paging offset for metadata records over HTTP
-    # @param max_to_prepare [Integer] maximum number to get ready for preservation
+    # @param uuid [Array<String>] uuid to preserve
     # @param dir_name_scheme [Symbol] method to make directory name
     # @param days_until_time_to_preserve [Integer] days to wait (after modification date) before preserving
-    def prepare_batch(limit: 0, offset: 0, max_to_prepare: 0,
-                             dir_name_scheme: :uuid,
-                             days_until_time_to_preserve: 0)
-      exit if max_to_prepare === 0
-      qty_prepared = 0
+    def prepare_dataset(uuids: [],
+                        dir_name_scheme: :uuid,
+                        days_until_time_to_preserve: 0)
       dir_base_path = Preservation.ingest_path
-      metadata = fetch_metadata_batch_http limit: limit, offset: offset, resource: :dataset
-      metadata.each do |d|
-        exit if qty_prepared === max_to_prepare
+
+      uuids.each do |uuid|
+        dataset = Puree::Dataset.new
+        dataset.find uuid: uuid
+        d = dataset.metadata
+        if d.empty?
+          @logger.info 'No metadata for ' + uuid
+          next
+        end
         # configurable to become more human-readable
         dir_name = build_directory_name(d, dir_name_scheme)
 
@@ -93,7 +95,6 @@ module Preservation
             # puts pretty
             File.write(metadata_filename,pretty)
             @logger.info 'Created ' + metadata_filename
-            qty_prepared += 1
           end
         else
           @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d['uuid']
@@ -102,14 +103,6 @@ module Preservation
     end
 
     private
-
-    def fetch_metadata_batch_http(limit: 0, offset: 0, resource: nil)
-      c = Puree::Collection.new resource: resource
-      metadata = c.find limit: limit, offset: offset
-      # sort by date created
-      metadata.sort_by! { |hsh| hsh['created'] }
-      metadata
-    end
 
     def package_dataset_metadata(d, f)
         o = {}

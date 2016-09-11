@@ -6,15 +6,10 @@ module Preservation
 
     attr_reader :logger
 
-    # @param ingest_path [String] absolute path to ingest directory
-    # @param log_path [String] absolute path to log file
-    # @param db_path [String] absolute path to sqlite file
-    def initialize(ingest_path: nil,
-                   log_path: nil,
-                   db_path: nil)
-      set_ingest_path ingest_path
-      setup_logger log_path
-      setup_report db_path
+    def initialize
+      check_ingest_path
+      setup_logger
+      setup_report
     end
 
     # Free up disk space for completed transfers
@@ -54,33 +49,31 @@ module Preservation
       wget_str
     end
 
-    def set_ingest_path(ingest_path)
-      if ingest_path.empty?
+    def check_ingest_path
+      if Preservation.ingest_path.nil?
         puts 'Missing ingest path'
         exit
-      else
-        @ingest_path = ingest_path
       end
     end
 
-    def setup_logger(log_path)
+    def setup_logger
       if @logger.nil?
-        if !log_path.nil? && !log_path.empty?
-          # Keep data for today and the past 20 days
-          @logger = Logger.new File.new(log_path, 'a'), 20, 'daily'
-        else
+        if Preservation.log_path.nil?
           @logger = Logger.new STDOUT
+        else
+          # Keep data for today and the past 20 days
+          @logger = Logger.new File.new(Preservation.log_path, 'a'), 20, 'daily'
         end
       end
       @logger.level = Logger::INFO
     end
 
-    def setup_report(db_path)
-      if db_path.empty?
+    def setup_report
+      if Preservation.db_path.nil?
         puts 'Missing db path'
         exit
       else
-        @report = IngestReport.new db_path: db_path
+        @report = IngestReport.new
       end
     end
 
@@ -155,7 +148,7 @@ module Preservation
                                                      status_presence: true)
       preserved = []
       ingest_complete.each do |i|
-        dir_path = @ingest_path + '/' + i['path']
+        dir_path = Preservation.ingest_path + '/' + i['path']
         if File.exists?(dir_path)
           preserved << dir_path
         end

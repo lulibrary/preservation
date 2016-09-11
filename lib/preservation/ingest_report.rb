@@ -4,9 +4,8 @@ module Preservation
   #
   class IngestReport
 
-    # @param db_path [String] absolute path to sqlite file
-    def initialize(db_path: nil)
-      @db = create_db_connection db_path
+    def initialize
+      create_db_connection
     end
 
     # Transfers based on presence (or not) of a particular status
@@ -160,12 +159,12 @@ module Preservation
 
     private
 
-    def create_db_connection(db_path)
-      if db_path.nil?
+    def create_db_connection
+      if Preservation.db_path.nil?
         puts 'Missing db_path'
         exit
       end
-      SQLite3::Database.new db_path
+      @db = SQLite3::Database.new Preservation.db_path
     end
 
   end

@@ -4,12 +4,7 @@ module Preservation
   #
   class PureIngest < Ingest
 
-    # @param ingest_path [String] absolute path to ingest directory
-    # @param log_path [String] absolute path to log file
-    # @param db_path [String] absolute path to sqlite file
-    def initialize(ingest_path: nil,
-                   log_path: nil,
-                   db_path: nil)
+    def initialize
       super
     end
 
@@ -27,7 +22,7 @@ module Preservation
                              days_until_time_to_preserve: 0)
       exit if max_to_prepare === 0
       qty_prepared = 0
-      dir_base_path = @ingest_path
+      dir_base_path = Preservation.ingest_path
       metadata = fetch_metadata_batch_http limit: limit, offset: offset, resource: :dataset
       metadata.each do |d|
         exit if qty_prepared === max_to_prepare

@@ -18,7 +18,7 @@ work with files and descriptive metadata which must be provided in a certain way
 
 ##  Preservation: ingest
 
-Create an ingestor for Pure.<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
+Create an ingestor for Pure.
 ```ruby
 ingest = Preservation::PureIngest.new
 ```
@@ -41,12 +41,10 @@ ingest.cleanup_preserved
 #VSLIDE
 
 ## Transfer-ready directory
-<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
 ```
 .
 ├── 10.17635-lancaster-researchdata-6
-│   ├── Ebola_data_Jun15.zip^(test|spec|features)/})
-  spec.require_paths = ["lib"]
+│   ├── Ebola_data_Jun15.zip
 │   └── metadata
 │       └── metadata.json
 ```
@@ -56,7 +54,7 @@ ingest.cleanup_preserved
 ## Transfer-ready metadata
 
 ```json
-[<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
+[
   {
     "filename": "objects/Ebola_data_Jun15.zip",
     "dc.title": "Ebolavirus evolution 2013-2015",
@@ -79,15 +77,14 @@ ingest.cleanup_preserved
       "Ebolavirus",
       "evolution",
       "phylogenetics",
-      "virulence",^(test|spec|features)/})
-  spec.require_paths = ["lib"]
+      "virulence",
       "Filoviridae",
       "positive selection"
     ],
     "dcterms.license": "CC BY",
     "related": [
       {
-        "dc.title": "The unprecedented scale of the West African Ebola virus disease outbreak is due to environmental an$
+        "dc.title": "The unprecedented scale of the West African Ebola virus disease outbreak is due to environmental and sociological factors, not special attributes of the currently circulating strain of the virus",
         "type": "Journal article",
         "dc.identifier": "http://dx.doi.org/10.1136/ebmed-2014-110127"
       },

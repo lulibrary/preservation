@@ -1,6 +1,6 @@
 # Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation/master?grs=github&t=sky)
 
-Ingest management for Archivematica's [Automation Tools](https://github.com/artefactual/automation-tools).
+Ingest management for Archivematica's <a href="https://github.com/artefactual/automation-tools" target="_blank">Automation Tools</a>.
 
 ## Installation
 

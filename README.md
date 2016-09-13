@@ -29,7 +29,7 @@ Configure Preservation. If ```log_path``` is omitted, logging (standard library)
   end
 ```
 
-Configure HTTP data source.
+Configure data source.
 
 ```ruby
 Puree.configure do |config|

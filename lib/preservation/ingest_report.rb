@@ -91,7 +91,7 @@ module Preservation
     # Compilation of statistics and data
     #
     # @return [Hash]
-    def transfer_report
+    def transfer_summary
       incomplete = transfer_status(status_to_find: 'COMPLETE', status_presence: false)
       failed = transfer_status(status_to_find: 'FAILED', status_presence: true)
       current = transfer_current

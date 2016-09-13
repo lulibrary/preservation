@@ -88,10 +88,10 @@ module Preservation
       @db.get_first_value( query, [status_to_find] )
     end
 
-    # Compilation of statistics and data
+    # Compilation of statistics and data, with focus on exceptions
     #
     # @return [Hash]
-    def transfer_summary
+    def transfer_exception
       incomplete = transfer_status(status_to_find: 'COMPLETE', status_presence: false)
       failed = transfer_status(status_to_find: 'FAILED', status_presence: true)
       current = transfer_current

@@ -1,7 +1,8 @@
 #HSLIDE
 
 ## Rationale
-Archivematica's [Automation Tools](https://github.com/artefactual/automation-tools) work with files and descriptive metadata which must be provided in a certain way.
+Archivematica's [Automation Tools](https://github.com/artefactual/automation-tools)
+work with files and descriptive metadata which must be provided in a certain way.
 
 
 #HSLIDE
@@ -23,19 +24,19 @@ Create an ingestor for Pure.
 ingest = Preservation::PureIngest.new
 ```
 
-Free up disk space for completed transfers.
-
-```ruby
-ingest.cleanup_preserved
-```
-
 For each uuid, if necessary, fetch the metadata, prepare a directory in the
 ingest path and populate it with the files and JSON description file.
 
 ```ruby
 ingest.prepare_dataset uuids: uuids,
                        dir_name_scheme: :doi_short,
-                       days_until_time_to_preserve: 0
+                       delay: 0
+```
+
+Free up disk space for completed transfers.
+
+```ruby
+ingest.cleanup_preserved
 ```
 
 #VSLIDE
@@ -107,9 +108,8 @@ Can be used for scheduled monitoring of transfers.
 
 ```ruby
 report = Preservation::IngestReport.new
-report.transfer_summary
+report.transfer_exception
 ```
-...and get a hash back...
 
 #HSLIDE
 

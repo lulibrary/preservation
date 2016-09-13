@@ -1,4 +1,4 @@
-# Preservation
+# Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation/master?grs=github&t=sky)
 
 Ingest management for Archivematica's [Automation Tools](https://github.com/artefactual/automation-tools).
 
@@ -25,7 +25,7 @@ Configure Preservation. If ```log_path``` is omitted, logging (standard library)
   Preservation.configure do |config|
     config.db_path     = ENV['ARCHIVEMATICA_DB_PATH']
     config.ingest_path = ENV['ARCHIVEMATICA_INGEST_PATH']
-    config.log_path    = ENV['ARCHIVEMATICA_LOG_PATH']
+    config.log_path    = ENV['PRESERVATION_LOG_PATH']
   end
 ```
 
@@ -40,35 +40,25 @@ Puree.configure do |config|
 end
 ```
 
-### Reporting
-```ruby
-ingest_report = Preservation::IngestReport.new
-transfer_report = ingest_report.transfer_report
-```
-
 ### Transfers
 
 Get some dataset UUIDs for preservation.
 
 ```ruby
 c = Puree::Collection.new resource: :dataset
-minimal_metadata = c.find limit: 2, offset: 10, full: false
+minimal_metadata = c.find limit: 2,
+                          offset: 10,
+                          full: false
 uuids = []
 minimal_metadata.each do |i|
   uuids << i['uuid']
 end
 ```
 
-Get ready for ingest.
+Create an ingestor for Pure.
 
 ```ruby
 ingest = Preservation::PureIngest.new
-```
-
-Free up disk space for completed transfers.
-
-```ruby
-ingest.cleanup_preserved
 ```
 
 For each uuid, if necessary, fetch the metadata, prepare
@@ -77,7 +67,21 @@ a directory in the ingest path and populate it with the files and JSON descripti
 ```ruby
 ingest.prepare_dataset uuids: uuids,
                        dir_name_scheme: :doi_short,
-                       days_until_time_to_preserve: 0
+                       delay: 0
+```
+
+Free up disk space for completed transfers.
+
+```ruby
+ingest.cleanup_preserved
+```
+
+### Reporting
+Can be used for scheduled monitoring of transfers.
+
+```ruby
+report = Preservation::IngestReport.new
+report.transfer_exception
 ```
 
 ## Documentation

@@ -132,13 +132,13 @@ module Preservation
     # time_to_preserve?
     #
     # @param start_utc [String]
-    # @param days_at_which_to_expire [Integer]
+    # @param delay [Integer] days to wait (after modification date) before preserving
     # @return [Boolean]
-    def time_to_preserve?(start_utc, days_until_time_to_preserve)
+    def time_to_preserve?(start_utc, delay)
       now = DateTime.now
       modified_datetime = DateTime.parse(start_utc)
       days_since_modified = (now - modified_datetime).to_i # result in days
-      days_since_modified >= days_until_time_to_preserve ? true : false
+      days_since_modified >= delay ? true : false
     end
 
     # # Collect all paths from DB where preservation has been done

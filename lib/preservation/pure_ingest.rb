@@ -12,12 +12,12 @@ module Preservation
     # prepare a directory in the ingest path and populate it with the files and
     # JSON description file.
     #
-    # @param uuid [Array<String>] uuid to preserve
+    # @param uuids [Array<String>] uuids to preserve
     # @param dir_name_scheme [Symbol] method to make directory name
-    # @param days_until_time_to_preserve [Integer] days to wait (after modification date) before preserving
+    # @param delay [Integer] days to wait (after modification date) before preserving
     def prepare_dataset(uuids: [],
                         dir_name_scheme: :uuid,
-                        days_until_time_to_preserve: 0)
+                        delay: 0)
       dir_base_path = Preservation.ingest_path
 
       uuids.each do |uuid|
@@ -41,7 +41,7 @@ module Preservation
            !@report.in_db?(dir_name) &&
            !d['doi'].empty? &&
            !d['file'].empty? &&
-           time_to_preserve?(d['modified'], days_until_time_to_preserve)
+           time_to_preserve?(d['modified'], delay)
 
           dir_file_path = dir_base_path + '/' + dir_name
           dir_metadata_path = dir_file_path + '/metadata/'

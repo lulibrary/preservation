@@ -1,9 +1,8 @@
 #HSLIDE
 
 ## Rationale
-Archivematica's [Automation Tools](https://github.com/artefactual/automation-tools)
+Archivematica's <a href="https://github.com/artefactual/automation-tools" target="_blank">Automation Tools</a>
 work with files and descriptive metadata which must be provided in a certain way.
-
 
 #HSLIDE
 
@@ -19,7 +18,7 @@ work with files and descriptive metadata which must be provided in a certain way
 
 ##  Preservation: ingest
 
-Create an ingestor for Pure.
+Create an ingestor for Pure.<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
 ```ruby
 ingest = Preservation::PureIngest.new
 ```
@@ -42,11 +41,12 @@ ingest.cleanup_preserved
 #VSLIDE
 
 ## Transfer-ready directory
-
+<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
 ```
 .
 ├── 10.17635-lancaster-researchdata-6
-│   ├── Ebola_data_Jun15.zip
+│   ├── Ebola_data_Jun15.zip^(test|spec|features)/})
+  spec.require_paths = ["lib"]
 │   └── metadata
 │       └── metadata.json
 ```
@@ -56,7 +56,7 @@ ingest.cleanup_preserved
 ## Transfer-ready metadata
 
 ```json
-[
+[<a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
   {
     "filename": "objects/Ebola_data_Jun15.zip",
     "dc.title": "Ebolavirus evolution 2013-2015",
@@ -79,7 +79,8 @@ ingest.cleanup_preserved
       "Ebolavirus",
       "evolution",
       "phylogenetics",
-      "virulence",
+      "virulence",^(test|spec|features)/})
+  spec.require_paths = ["lib"]
       "Filoviridae",
       "positive selection"
     ],

@@ -22,11 +22,11 @@ Or install it yourself as:
 Configure Preservation. If ```log_path``` is omitted, logging (standard library) redirects to STDOUT.
 
 ```ruby
-  Preservation.configure do |config|
-    config.db_path     = ENV['ARCHIVEMATICA_DB_PATH']
-    config.ingest_path = ENV['ARCHIVEMATICA_INGEST_PATH']
-    config.log_path    = ENV['PRESERVATION_LOG_PATH']
-  end
+Preservation.configure do |config|
+  config.db_path     = ENV['ARCHIVEMATICA_DB_PATH']
+  config.ingest_path = ENV['ARCHIVEMATICA_INGEST_PATH']
+  config.log_path    = ENV['PRESERVATION_LOG_PATH']
+end
 ```
 
 Configure data source.

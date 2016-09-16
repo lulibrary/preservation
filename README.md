@@ -1,6 +1,6 @@
 # Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation/master?grs=github&t=sky)
 
-Ingest management for Archivematica's <a href="https://github.com/artefactual/automation-tools" target="_blank">Automation Tools</a>.
+Extraction and Transformation in preparation for Loading by Archivematica's Automation Tools.
 
 ## Installation
 
@@ -19,7 +19,7 @@ Or install it yourself as:
 ## Usage
 
 ### Configuration
-Configure Preservation. If ```log_path``` is omitted, logging (standard library) redirects to STDOUT.
+Configure Preservation. If ```log_path``` is omitted, logging (standard library) writes to STDOUT.
 
 ```ruby
 Preservation.configure do |config|
@@ -29,59 +29,37 @@ Preservation.configure do |config|
 end
 ```
 
-Configure data source.
+
+### Transfer
+Create a transfer using Pure Research Information System as a data source.
 
 ```ruby
-Puree.configure do |config|
-  config.base_url   = ENV['PURE_BASE_URL']
-  config.username   = ENV['PURE_USERNAME']
-  config.password   = ENV['PURE_PASSWORD']
-  config.basic_auth = true
-end
+transfer = Preservation::Transfer::Pure.new base_url:   ENV['PURE_BASE_URL'],
+                                            username:   ENV['PURE_USERNAME'],
+                                            password:   ENV['PURE_PASSWORD'],
+                                            basic_auth: true
 ```
 
-### Transfers
-
-Get some dataset UUIDs for preservation.
-
-```ruby
-c = Puree::Collection.new resource: :dataset
-minimal_metadata = c.find limit: 2,
-                          offset: 10,
-                          full: false
-uuids = []
-minimal_metadata.each do |i|
-  uuids << i['uuid']
-end
-```
-
-Create an ingestor for Pure.
-
-```ruby
-ingest = Preservation::PureIngest.new
-```
-
-For each uuid, if necessary, fetch the metadata, prepare
+For a Pure dataset, if necessary, fetch the metadata, prepare
 a directory in the ingest path and populate it with the files and JSON description file.
 
 ```ruby
-ingest.prepare_dataset uuids: uuids,
-                       dir_name_scheme: :doi_short,
-                       delay: 0
+transfer.prepare_dataset uuid:       uuid,
+                         dir_scheme: :doi_short,
+                         delay:      100
 ```
 
-Free up disk space for completed transfers.
+Free up disk space for completed transfers. Can be done at any time.
 
 ```ruby
-ingest.cleanup_preserved
+transfer.cleanup
 ```
 
-### Reporting
+### Report
 Can be used for scheduled monitoring of transfers.
 
 ```ruby
-report = Preservation::IngestReport.new
-report.transfer_exception
+Preservation::Report::Transfer.new.exception
 ```
 
 ## Documentation

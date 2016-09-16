@@ -7,14 +7,14 @@ module Preservation
     attr_reader :logger
 
     def initialize
-      check_ingest_path
       setup_logger
+      check_ingest_path
       setup_report
     end
 
     # Free up disk space for completed transfers
     #
-    def cleanup_preserved
+    def cleanup
       preserved = get_preserved
       if !preserved.nil? && !preserved.empty?
         preserved.each do |i|
@@ -51,7 +51,7 @@ module Preservation
 
     def check_ingest_path
       if Preservation.ingest_path.nil?
-        puts 'Missing ingest path'
+        @logger.error 'Missing ingest path'
         exit
       end
     end
@@ -70,10 +70,10 @@ module Preservation
 
     def setup_report
       if Preservation.db_path.nil?
-        puts 'Missing db path'
+        @logger.error 'Missing db path'
         exit
       else
-        @report = IngestReport.new
+        @report = Preservation::Report::Transfer.new
       end
     end
 
@@ -141,10 +141,10 @@ module Preservation
       days_since_modified >= delay ? true : false
     end
 
-    # # Collect all paths from DB where preservation has been done
-    # # @return [Array<String>]
+    # Collect all paths from DB where preservation has been done
+    # @return [Array<String>]
     def get_preserved
-      ingest_complete = @report.transfer_status(status_to_find: 'COMPLETE',
+      ingest_complete = @report.status(status_to_find: 'COMPLETE',
                                                      status_presence: true)
       preserved = []
       ingest_complete.each do |i|

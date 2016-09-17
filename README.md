@@ -1,6 +1,6 @@
 # Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation/master?grs=github&t=sky)
 
-Extraction and Transformation in preparation for Loading by Archivematica's Automation Tools.
+Extraction and Transformation for Loading by Archivematica's Automation Tools.
 
 ## Installation
 
@@ -31,7 +31,7 @@ end
 
 
 ### Transfer
-Create a transfer using Pure Research Information System as a data source.
+Create a transfer using the Pure Research Information System as a data source.
 
 ```ruby
 transfer = Preservation::Transfer::Pure.new base_url:   ENV['PURE_BASE_URL'],
@@ -44,23 +44,23 @@ For a Pure dataset, if necessary, fetch the metadata, prepare
 a directory in the ingest path and populate it with the files and JSON description file.
 
 ```ruby
-transfer.prepare_dataset uuid:       uuid,
-                         dir_scheme: :doi_short,
-                         delay:      100
+transfer.prepare_dataset uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 ```
 
 Free up disk space for completed transfers. Can be done at any time.
 
 ```ruby
-transfer.cleanup
+Preservation::Storage.cleanup
 ```
 
 ### Report
 Can be used for scheduled monitoring of transfers.
 
 ```ruby
-Preservation::Report::Transfer.new.exception
+Preservation::Report::Transfer.exception
 ```
 
 ## Documentation
 [API in YARD](http://www.rubydoc.info/gems/preservation)
+
+[Detailed usage in GitBook](https://aalbinclark.gitbooks.io/preservation)

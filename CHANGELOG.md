@@ -4,10 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-## 0.2.0 - 2016-09-16
+## 0.2.0 - 2016-09-18
 ### Changed
-- Singular uuid rather than an array of uuids as parameter for prepare_dataset.
-- Refine class/module structure.
+- Singular uuid rather than an array of uuids as parameter for transfer preparation.
+- Modules, classes and API.
 
 ## 0.1.0 - 2016-09-13
 ### Added

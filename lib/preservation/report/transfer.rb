@@ -4,18 +4,13 @@ module Preservation
 
     # Transfer reporting
     #
-    class Transfer
-      include Preservation::Report::Database
-
-      def initialize
-        @db = create_db_connection Preservation.db_path
-      end
+    module Transfer
 
       # Transfers based on presence (or not) of a particular status
       #
       # @param status_to_find [String]
       # @param status_presence [Boolean]
-      def status(status_to_find: nil, status_presence: true)
+      def self.status(status_to_find: nil, status_presence: true)
         if status_presence === true
           status_presence = '='
         else
@@ -27,11 +22,11 @@ module Preservation
         # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
         # and use hex function in DB query
         records = []
-        @db.results_as_hash = true
-        @db.execute( query, [ status_to_find ] ) do |row|
+        db.results_as_hash = true
+        db.execute( query, [ status_to_find ] ) do |row|
           id = row['id']
           uuid = row['uuid']
-          bin_path = StringUtil.hex_to_bin row['hex_path']
+          bin_path = Preservation::Conversion.hex_to_bin row['hex_path']
           unit_type = row['unit_type']
           status = row['status']
           microservice = row['microservice']
@@ -54,14 +49,14 @@ module Preservation
       # Current transfer
       #
       # @return [Hash]
-      def current
+      def self.current
         query = "SELECT id, uuid, hex(path) as hex_path, unit_type, status, microservice, current FROM unit WHERE current = 1"
 
         # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
         # and use hex function in DB query
         o = {}
-        @db.results_as_hash = true
-        @db.execute( query ) do |row|
+        db.results_as_hash = true
+        db.execute( query ) do |row|
           id = row['id']
           uuid = row['uuid']
           bin_path = hex_to_bin row['hex_path']
@@ -83,18 +78,18 @@ module Preservation
       # Count of complete transfers
       #
       # @return [Integer]
-      def complete_count
+      def self.complete_count
         query = 'SELECT count(*) FROM unit WHERE status = ?'
 
         status_to_find = 'COMPLETE'
-        @db.results_as_hash = true
-        @db.get_first_value( query, [status_to_find] )
+        db.results_as_hash = true
+        db.get_first_value( query, [status_to_find] )
       end
 
       # Compilation of statistics and data, with focus on exceptions
       #
       # @return [Hash]
-      def exception
+      def self.exception
         incomplete = status(status_to_find: 'COMPLETE', status_presence: false)
         failed = status(status_to_find: 'FAILED', status_presence: true)
         report = {}
@@ -113,7 +108,7 @@ module Preservation
       # Is it in database?
       # @param path_to_find [String] directory name within ingest path
       # @return [Boolean]
-      def in_db?(path_to_find)
+      def self.in_db?(path_to_find)
         in_db = false
 
         # Get path out of DB as a hex string
@@ -121,8 +116,8 @@ module Preservation
 
         # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
         # and use hex function in DB query
-        @db.execute( query ) do |row|
-          bin_path = StringUtil.hex_to_bin row[0]
+        db.execute( query ) do |row|
+          bin_path = Preservation::Conversion.hex_to_bin row[0]
           if bin_path === path_to_find
             in_db = true
           end
@@ -134,7 +129,7 @@ module Preservation
       # Has preservation been done?
       # @param path_to_find [String] directory name within ingest path
       # @return [Boolean]
-      def preserved?(path_to_find)
+      def self.preserved?(path_to_find)
         preserved = false
 
         # 'ingest' value in unit_type and 'COMPLETE' value in status DB fields
@@ -147,8 +142,8 @@ module Preservation
 
         # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
         # and use hex function in DB query
-        @db.execute( query, [ unit_type_to_find, status_to_find ] ) do |row|
-          bin_path = StringUtil.hex_to_bin row[0]
+        db.execute( query, [ unit_type_to_find, status_to_find ] ) do |row|
+          bin_path = Preservation::Conversion.hex_to_bin row[0]
           if bin_path === path_to_find
             preserved = true
           end
@@ -157,13 +152,12 @@ module Preservation
         preserved
       end
 
-      # def create_db_connection
-      #   if Preservation.db_path.nil?
-      #     puts 'Missing db_path'
-      #     exit
-      #   end
-      #   @db = SQLite3::Database.new Preservation.db_path
-      # end
+      # Db
+      #
+      # @return [SQLite3::Database]
+      def self.db
+        Preservation::Report::Database.db_connection Preservation.db_path
+      end
 
     end
 

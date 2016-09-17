@@ -16,26 +16,28 @@ work with files and descriptive metadata which must be provided in a certain way
 
 #HSLIDE
 
-##  Preservation: ingest
+##  Preservation: transfer
 
-Create an ingestor for Pure.
+Create a transfer using the Pure Research Information System as a data source.
+
 ```ruby
-ingest = Preservation::PureIngest.new
+transfer = Preservation::Transfer::Pure.new base_url:   ENV['PURE_BASE_URL'],
+                                            username:   ENV['PURE_USERNAME'],
+                                            password:   ENV['PURE_PASSWORD'],
+                                            basic_auth: true
 ```
 
-For each uuid, if necessary, fetch the metadata, prepare a directory in the
-ingest path and populate it with the files and JSON description file.
+For a Pure dataset, if necessary, fetch the metadata, prepare
+a directory in the ingest path and populate it with the files and JSON description file.
 
 ```ruby
-ingest.prepare_dataset uuids: uuids,
-                       dir_name_scheme: :doi_short,
-                       delay: 0
+transfer.prepare_dataset uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 ```
 
-Free up disk space for completed transfers.
+Free up disk space for completed transfers. Can be done at any time.
 
 ```ruby
-ingest.cleanup_preserved
+Preservation::Storage.cleanup
 ```
 
 #VSLIDE
@@ -105,8 +107,7 @@ ingest.cleanup_preserved
 Can be used for scheduled monitoring of transfers.
 
 ```ruby
-report = Preservation::IngestReport.new
-report.transfer_exception
+Preservation::Report::Transfer.exception
 ```
 
 #HSLIDE
@@ -122,3 +123,5 @@ report.transfer_exception
 ## Documentation
 
 <a href="http://www.rubydoc.info/gems/preservation" target="_blank">API in YARD</a>
+
+<a href="https://aalbinclark.gitbooks.io/preservation" target="_blank">Detailed usage in GitBook</a>

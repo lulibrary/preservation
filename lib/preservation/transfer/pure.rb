@@ -50,7 +50,7 @@ module Preservation
           exit
         end
         # configurable to become more human-readable
-        dir_name = build_directory_name(d, dir_scheme)
+        dir_name = Preservation::Builder.build_directory_name(d, dir_scheme)
 
         # continue only if dir_name is not empty (e.g. because there was no DOI)
         # continue only if there is no DB entry
@@ -59,10 +59,10 @@ module Preservation
         # continue only if it is time to preserve
         if !dir_name.nil? &&
            !dir_name.empty? &&
-           !@report.in_db?(dir_name) &&
+           !Preservation::Report::Transfer.in_db?(dir_name) &&
            !d['doi'].empty? &&
            !d['file'].empty? &&
-           time_to_preserve?(d['modified'], delay)
+           Preservation::Temporal.time_to_preserve?(d['modified'], delay)
 
           dir_file_path = dir_base_path + '/' + dir_name
           dir_metadata_path = dir_file_path + '/metadata/'
@@ -73,7 +73,7 @@ module Preservation
           d['file'].each { |i| download_storage_required += i['size'].to_i }
 
           # do we have enough space in filesystem to fetch data files?
-          if enough_storage_for_download? download_storage_required
+          if Preservation::Storage.enough_storage_for_download? download_storage_required
             # @logger.info 'Sufficient disk space for ' + dir_file_path
           else
             @logger.error 'Insufficient disk space to store files fetched from Pure. Skipping ' + dir_file_path
@@ -89,9 +89,9 @@ module Preservation
             d['file'].each do |f|
               o = package_dataset_metadata d, f
               data << o
-              wget_str = build_wget @username,
-                                    @password,
-                                    f['url']
+              wget_str = Preservation::Builder.build_wget @username,
+                                                          @password,
+                                                          f['url']
 
               Dir.mkdir(dir_file_path) if !Dir.exists?(dir_file_path)
 

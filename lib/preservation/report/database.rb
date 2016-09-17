@@ -4,18 +4,19 @@ module Preservation
   #
   module Report
 
-    # Database connection
+    # Database
     #
     module Database
 
-      private
-
-      def create_db_connection(db_path)
+      # Database connection
+      #
+      # @return [SQLite3::Database]
+       def self.db_connection(db_path)
         if db_path.nil?
           puts 'Missing db_path'
           exit
         end
-        SQLite3::Database.new db_path
+        @db ||= SQLite3::Database.new db_path
       end
 
     end

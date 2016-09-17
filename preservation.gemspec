@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Preservation::VERSION
   spec.authors       = ["Adrian Albin-Clark"]
   spec.email         = ["a.albin-clark@lancaster.ac.uk"]
-  spec.summary       = %q{Ingest management for Archivematica's Automation Tools.}
-  spec.description   = %q{Transfer preparation, reporting and disk space management for Archivematica's Automation Tools.}
-  spec.homepage      = "https://rubygems.org/gems/preservation"
+  spec.summary       = %q{Extraction and Transformation for Loading by Archivematica's Automation Tools.}
+  spec.description   = %q{Extraction and Transformation for Loading by Archivematica's Automation Tools. Includes transfer preparation, reporting and disk space management.}
+  spec.homepage      = "https://aalbinclark.gitbooks.io/preservation"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")

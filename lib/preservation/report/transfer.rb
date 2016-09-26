@@ -19,28 +19,10 @@ module Preservation
 
         query = "SELECT id, uuid, hex(path) as hex_path, unit_type, status, microservice, current FROM unit WHERE status #{status_presence} ?"
 
-        # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
-        # and use hex function in DB query
         records = []
         db.results_as_hash = true
         db.execute( query, [ status_to_find ] ) do |row|
-          id = row['id']
-          uuid = row['uuid']
-          bin_path = Preservation::Conversion.hex_to_bin row['hex_path']
-          unit_type = row['unit_type']
-          status = row['status']
-          microservice = row['microservice']
-          current = row['current']
-          o = {}
-          o['path'] = bin_path if !bin_path.empty?
-          o['unit_type'] = unit_type if !unit_type.empty?
-          o['status'] = status if !status.empty?
-          o['microservice'] = microservice if !microservice.empty?
-          o['current'] = current if current
-          o['id'] = id if id
-          o['uuid'] = uuid if !uuid.empty?
-
-          records << o
+          records << row_to_hash(row)
         end
 
         records
@@ -52,25 +34,10 @@ module Preservation
       def self.current
         query = "SELECT id, uuid, hex(path) as hex_path, unit_type, status, microservice, current FROM unit WHERE current = 1"
 
-        # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
-        # and use hex function in DB query
         o = {}
         db.results_as_hash = true
         db.execute( query ) do |row|
-          id = row['id']
-          uuid = row['uuid']
-          bin_path = hex_to_bin row['hex_path']
-          unit_type = row['unit_type']
-          status = row['status']
-          microservice = row['microservice']
-          current = row['current']
-          o['path'] = bin_path if !bin_path.empty?
-          o['unit_type'] = unit_type if !unit_type.empty?
-          o['status'] = status if !status.empty?
-          o['microservice'] = microservice if !microservice.empty?
-          o['current'] = current if current
-          o['id'] = id if id
-          o['uuid'] = uuid if !uuid.empty?
+          o = row_to_hash(row)
         end
         o
       end
@@ -157,6 +124,27 @@ module Preservation
       # @return [SQLite3::Database]
       def self.db
         Preservation::Report::Database.db_connection Preservation.db_path
+      end
+
+      def self.row_to_hash(row)
+        id = row['id']
+        uuid = row['uuid']
+        # Archivematica stores path as BLOB, so need to convert path to Hex, to search for it
+        # and use hex function in DB query
+        bin_path = Preservation::Conversion.hex_to_bin row['hex_path']
+        unit_type = row['unit_type']
+        status = row['status']
+        microservice = row['microservice']
+        current = row['current']
+        o = {}
+        o['path'] = bin_path if !bin_path.nil? && !bin_path.empty?
+        o['unit_type'] = unit_type if !unit_type.nil? && !unit_type.empty?
+        o['status'] = status if !status.nil? && !status.empty?
+        o['microservice'] = microservice if !microservice.nil? && !microservice.empty?
+        o['current'] = current if current
+        o['id'] = id if id
+        o['uuid'] = uuid if !uuid.nil? && !uuid.empty?
+        o
       end
 
     end

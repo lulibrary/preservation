@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.2.1 - 2016-09-26
+### Fixed
+- Reporting - handling nulls in database.
+- Reporting - namespace for hex/bin conversion.
+
 ## 0.2.0 - 2016-09-18
 ### Changed
 - Singular uuid rather than an array of uuids as parameter for transfer preparation.

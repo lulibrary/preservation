@@ -1,4 +1,4 @@
-# Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation/master?grs=github&t=sky)
+# Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation)
 
 Extraction and Transformation for Loading by Archivematica's Automation Tools.
 

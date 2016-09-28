@@ -29,9 +29,12 @@ module Preservation
       # @param uuid [String] uuid to preserve
       # @param dir_scheme [Symbol] how to make directory name
       # @param delay [Integer] days to wait (after modification date) before preserving
+      # @return success [Boolean] indicated by presence of metadata description file
       def prepare_dataset(uuid: nil,
                           dir_scheme: :uuid,
                           delay: 0)
+        success = false
+
         if uuid.nil?
           @logger.error 'Missing ' + uuid
           exit
@@ -49,6 +52,7 @@ module Preservation
           @logger.error 'No metadata for ' + uuid
           exit
         end
+
         # configurable to become more human-readable
         dir_name = Preservation::Builder.build_directory_name(d, dir_scheme)
 
@@ -115,12 +119,56 @@ module Preservation
             # puts pretty
             File.write(metadata_filename,pretty)
             @logger.info 'Created ' + metadata_filename
+            success = true
           else
             @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d['uuid'] +
                          ' because ' + metadata_filename + ' exists'
           end
         else
           @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d['uuid']
+        end
+        success
+      end
+
+      # For multiple datasets, if necessary, fetch the metadata,
+      # prepare a directory in the ingest path and populate it with the files and
+      # JSON description file.
+      #
+      # @param max [Integer] maximum to prepare
+      # @param dir_scheme [Symbol] how to make directory name
+      # @param delay [Integer] days to wait (after modification date) before preserving
+      def prepare_dataset_batch(max: nil,
+                                dir_scheme: :uuid,
+                                delay: 30)
+        collection = Puree::Collection.new resource:  :dataset,
+                                           base_url:   @base_url,
+                                           username:   @username,
+                                           password:   @password,
+                                           basic_auth: @basic_auth
+        count = collection.count
+
+        max = count if max.nil?
+
+        batch_size = 10
+        num_prepared = 0
+        0.step(count, batch_size) do |n|
+
+          minimal_metadata = collection.find limit:  batch_size,
+                                             offset: n,
+                                             full:   false
+          uuids = []
+          minimal_metadata.each do |i|
+            uuids << i['uuid']
+          end
+
+          uuids.each do |uuid|
+            success = prepare_dataset uuid:       uuid,
+                                      dir_scheme: dir_scheme.to_sym,
+                                      delay:      delay
+
+            num_prepared += 1 if success
+            exit if num_prepared == max
+          end
         end
       end
 

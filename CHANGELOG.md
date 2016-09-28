@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.3.0 - 2016-09-28
+### Added
+- Transfer - prepare batches of datasets.
+
 ## 0.2.2 - 2016-09-28
 ### Fixed
 - Transfer - related work as simple array in metadata.

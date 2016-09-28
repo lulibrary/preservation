@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.2.2 - 2016-09-28
+### Fixed
+- Transfer - related work as simple array in metadata.
+
 ## 0.2.1 - 2016-09-26
 ### Fixed
 - Reporting - handling nulls in database.

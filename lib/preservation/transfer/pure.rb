@@ -187,22 +187,18 @@ module Preservation
           related = []
           publications = d['publication']
           publications.each do |i|
-            o_related = {}
-            o_related['dc.title'] = i['title']
-            o_related['type'] = i['type']
             pub = Puree::Publication.new base_url: @base_url,
                                          username: @username,
                                          password: @password,
                                          basic_auth: @basic_auth
             pub.find uuid: i['uuid']
             doi = pub.doi
-            if doi
-              o_related['dc.identifier'] = doi
+            if !doi.empty?
+              related << doi
             end
-            related << o_related
           end
           if !related.empty?
-            o['related'] = related
+            o['dc.relation'] = related
           end
 
           o

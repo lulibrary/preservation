@@ -84,17 +84,9 @@ Preservation::Storage.cleanup
       "positive selection"
     ],
     "dcterms.license": "CC BY",
-    "related": [
-      {
-        "dc.title": "The unprecedented scale of the West African Ebola virus disease outbreak is due to environmental and sociological factors, not special attributes of the currently circulating strain of the virus",
-        "type": "Journal article",
-        "dc.identifier": "http://dx.doi.org/10.1136/ebmed-2014-110127"
-      },
-      {
-        "dc.title": "The 2014 Ebola virus disease outbreak in West Africa",
-        "type": "Journal article",
-        "dc.identifier": "http://dx.doi.org/10.1099/vir.0.067199-0"
-      }
+    "dc.relation": [
+      "http://dx.doi.org/10.1136/ebmed-2014-110127",
+      "http://dx.doi.org/10.1099/vir.0.067199-0"
     ]
   }
 ]

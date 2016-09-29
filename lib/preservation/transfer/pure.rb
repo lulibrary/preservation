@@ -29,7 +29,7 @@ module Preservation
       # @param uuid [String] uuid to preserve
       # @param dir_scheme [Symbol] how to make directory name
       # @param delay [Integer] days to wait (after modification date) before preserving
-      # @return success [Boolean] indicated by presence of metadata description file
+      # @return [Boolean] indicates presence of metadata description file
       def prepare_dataset(uuid: nil,
                           dir_scheme: :uuid,
                           delay: 0)
@@ -134,7 +134,7 @@ module Preservation
       # prepare a directory in the ingest path and populate it with the files and
       # JSON description file.
       #
-      # @param max [Integer] maximum to prepare
+      # @param max [Integer] maximum to prepare, omit to set no maximum
       # @param dir_scheme [Symbol] how to make directory name
       # @param delay [Integer] days to wait (after modification date) before preserving
       def prepare_dataset_batch(max: nil,

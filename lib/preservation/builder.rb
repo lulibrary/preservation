@@ -31,7 +31,7 @@ module Preservation
 
     # Build directory name
     #
-    # @param metadata record [Hash]
+    # @param metadata_record [Hash]
     # @param directory_name_scheme [Symbol]
     # @return [String]
     def self.build_directory_name(metadata_record, directory_name_scheme)

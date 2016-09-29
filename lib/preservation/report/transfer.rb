@@ -53,6 +53,29 @@ module Preservation
         db.get_first_value( query, [status_to_find] )
       end
 
+      # Pending transfers
+      #
+      # @return [Hash]
+      def self.pending
+        # Get the directories
+        dirs = Dir.entries Preservation.ingest_path
+
+        pending = {}
+        pending['count'] = 0
+        pending['data'] = []
+        # For each directory, if it isn't the db, add it to list
+        dirs.each do |dir|
+          next if !in_db?(dir)
+          transfer = {}
+          transfer['path'] = dir
+          transfer['modified'] = File.mtime(Preservation.ingest_path + '/' + dir)
+          pending['data'] << transfer
+          pending['count'] += 1
+        end
+
+        pending
+      end
+
       # Compilation of statistics and data, with focus on exceptions
       #
       # @return [Hash]
@@ -60,6 +83,7 @@ module Preservation
         incomplete = status(status_to_find: 'COMPLETE', status_presence: false)
         failed = status(status_to_find: 'FAILED', status_presence: true)
         report = {}
+        report['pending'] = pending if !pending.empty?
         report['current'] = current if !current.empty?
         report['failed'] = {}
         report['failed']['count'] = failed.count
@@ -118,6 +142,8 @@ module Preservation
 
         preserved
       end
+
+      private
 
       # Db
       #

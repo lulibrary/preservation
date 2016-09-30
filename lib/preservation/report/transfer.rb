@@ -19,10 +19,13 @@ module Preservation
 
         query = "SELECT id, uuid, hex(path) as hex_path, unit_type, status, microservice, current FROM unit WHERE status #{status_presence} ?"
 
-        records = []
+        records = {}
         db.results_as_hash = true
         db.execute( query, [ status_to_find ] ) do |row|
-          records << row_to_hash(row)
+          bin_path = Preservation::Conversion.hex_to_bin row['hex_path']
+          if !bin_path.nil? && !bin_path.empty?
+            records[bin_path] = row_to_hash(row)
+          end
         end
 
         records
@@ -59,40 +62,53 @@ module Preservation
       def self.pending
         # Get the directories
         dirs = Dir.entries Preservation.ingest_path
-
-        pending = {}
-        pending['count'] = 0
-        pending['data'] = []
-        # For each directory, if it isn't the db, add it to list
+        o = {}
+        # For each directory, if it isn't in the db, add it to list
         dirs.each do |dir|
           next if !in_db?(dir)
-          transfer = {}
-          transfer['path'] = dir
-          transfer['modified'] = File.mtime(Preservation.ingest_path + '/' + dir)
-          pending['data'] << transfer
-          pending['count'] += 1
+          o[dir] = {}
+          o[dir]['path_timestamp'] = File.mtime "#{Preservation.ingest_path}/#{dir}"
         end
-
-        pending
+        o
       end
+
+      # Is there a pending transfer with this path?
+      #
+      # @return [Boolean]
+      def self.pending?(path_to_find)
+        is_pending = false
+        pending.each do |i|
+          if i['path'] == path_to_find
+            is_pending = true
+            break
+          end
+        end
+        is_pending
+      end
+
 
       # Compilation of statistics and data, with focus on exceptions
       #
       # @return [Hash]
       def self.exception
-        incomplete = status(status_to_find: 'COMPLETE', status_presence: false)
-        failed = status(status_to_find: 'FAILED', status_presence: true)
+        incomplete_result = status(status_to_find: 'COMPLETE', status_presence: false)
+        failed_result = status(status_to_find: 'FAILED', status_presence: true)
+        pending_result = pending
+        current_result = current
+        complete_count_result = complete_count
         report = {}
-        report['pending'] = pending if !pending.empty?
-        report['current'] = current if !current.empty?
+        report['pending'] = {}
+        report['pending']['count'] = pending_result.count
+        report['pending']['data'] = pending_result if !pending_result.empty?
+        report['current'] = current_result if !current_result.empty?
         report['failed'] = {}
-        report['failed']['count'] = failed.count
-        report['failed']['data'] = failed if !failed.empty?
+        report['failed']['count'] = failed_result.count
+        report['failed']['data'] = failed_result if !failed_result.empty?
         report['incomplete'] = {}
-        report['incomplete']['count'] = incomplete.count
-        report['incomplete']['data'] = incomplete if !incomplete.empty?
+        report['incomplete']['count'] = incomplete_result.count
+        report['incomplete']['data'] = incomplete_result if !incomplete_result.empty?
         report['complete'] = {}
-        report['complete']['count'] = complete_count if complete_count
+        report['complete']['count'] = complete_count_result if complete_count_result
         report
       end
 
@@ -170,6 +186,10 @@ module Preservation
         o['current'] = current if current
         o['id'] = id if id
         o['uuid'] = uuid if !uuid.nil? && !uuid.empty?
+        path = "#{Preservation.ingest_path}/#{bin_path}"
+        if File.exist? path
+          o['path_timestamp'] = File.mtime path
+        end
         o
       end
 

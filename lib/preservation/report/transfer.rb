@@ -61,16 +61,23 @@ module Preservation
       #
       # @return [Hash]
       def self.pending
-        # Get the directories
-        dirs = Dir.entries Preservation.ingest_path
+        entries = Dir.entries Preservation.ingest_path
+        dirs = []
+        entries.each do |entry|
+          path = File.join(Preservation.ingest_path, entry)
+          if File.directory?(path)
+            dirs << entry unless File.basename(path).start_with?('.')
+          end
+        end
         a = []
         # For each directory, if it isn't in the db, add it to list
         dirs.each do |dir|
-          next if !in_db?(dir)
-          o = {}
-          o['path'] = dir
-          o['path_timestamp'] = File.mtime "#{Preservation.ingest_path}/#{dir}"
-          a << o
+          if in_db?(dir) === false
+            o = {}
+            o['path'] = dir
+            o['path_timestamp'] = File.mtime File.join(Preservation.ingest_path, dir)
+            a << o
+          end
         end
         a
       end

@@ -4,7 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-## 0.3.0 - 2016-09-30
+## 0.4.1 - 2016-09-30
+### Fixed
+- Reporting - pending transfers false positives.
+
+## 0.4.0 - 2016-09-30
 ### Added
 - Transfer - prepare batches of datasets.
 - Reporting - pending transfers.

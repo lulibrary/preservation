@@ -21,6 +21,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '~> 2.1'
 
   spec.add_runtime_dependency 'free_disk_space', '~> 1.0'
-  spec.add_runtime_dependency 'puree', '~> 0.17'
+  spec.add_runtime_dependency 'puree', '~> 0.19'
   spec.add_runtime_dependency 'sqlite3', '~> 1.3'
 end

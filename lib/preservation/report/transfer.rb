@@ -10,6 +10,7 @@ module Preservation
       #
       # @param status_to_find [String]
       # @param status_presence [Boolean]
+      # @return [Array<Hash>]
       def self.status(status_to_find: nil, status_presence: true)
         if status_presence === true
           status_presence = '='
@@ -19,12 +20,12 @@ module Preservation
 
         query = "SELECT id, uuid, hex(path) as hex_path, unit_type, status, microservice, current FROM unit WHERE status #{status_presence} ?"
 
-        records = {}
+        records = []
         db.results_as_hash = true
         db.execute( query, [ status_to_find ] ) do |row|
           bin_path = Preservation::Conversion.hex_to_bin row['hex_path']
           if !bin_path.nil? && !bin_path.empty?
-            records[bin_path] = row_to_hash(row)
+            records << row_to_hash(row)
           end
         end
 
@@ -62,14 +63,16 @@ module Preservation
       def self.pending
         # Get the directories
         dirs = Dir.entries Preservation.ingest_path
-        o = {}
+        a = []
         # For each directory, if it isn't in the db, add it to list
         dirs.each do |dir|
           next if !in_db?(dir)
-          o[dir] = {}
-          o[dir]['path_timestamp'] = File.mtime "#{Preservation.ingest_path}/#{dir}"
+          o = {}
+          o['path'] = dir
+          o['path_timestamp'] = File.mtime "#{Preservation.ingest_path}/#{dir}"
+          a << o
         end
-        o
+        a
       end
 
       # Is there a pending transfer with this path?

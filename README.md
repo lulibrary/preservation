@@ -1,6 +1,12 @@
-# Preservation [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation) [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation)
+# Preservation
 
 Extraction and Transformation for Loading by Archivematica's Automation Tools.
+
+## Status
+
+[![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation)
+[![Build Status](https://semaphoreci.com/api/v1/aalbinclark/preservation/branches/master/badge.svg)](https://semaphoreci.com/aalbinclark/preservation)
+[![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation)
 
 ## Installation
 

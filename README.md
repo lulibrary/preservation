@@ -7,6 +7,7 @@ Extraction and Transformation for Loading by Archivematica's Automation Tools.
 [![Gem Version](https://badge.fury.io/rb/preservation.svg)](https://badge.fury.io/rb/preservation)
 [![Build Status](https://semaphoreci.com/api/v1/aalbinclark/preservation/branches/master/badge.svg)](https://semaphoreci.com/aalbinclark/preservation)
 [![GitPitch](https://gitpitch.com/assets/badge.svg)](https://gitpitch.com/lulibrary/preservation)
+[![Dependency Status](https://www.versioneye.com/user/projects/5899e0d11e07ae0043969771/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5899e0d11e07ae0043969771)
 
 ## Installation
 

@@ -241,7 +241,7 @@ module Preservation
                                          basic_auth: @basic_auth
             pub.find uuid: i['uuid']
             doi = pub.doi
-            if !doi.empty?
+            if doi
               related << doi
             end
           end

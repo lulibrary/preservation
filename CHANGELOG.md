@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.4.2 - 2017-05-18
+### Fixed
+- Transfer - presence check for DOI of a related work.
+
 ## 0.4.1 - 2016-09-30
 ### Fixed
 - Reporting - pending transfers false positives.

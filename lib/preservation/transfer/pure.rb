@@ -8,18 +8,10 @@ module Preservation
     #
     class Pure < Ingest
 
-      # @param base_url [String]
-      # @param username [String]
-      # @param password [String]
-      # @param basic_auth [Boolean]
-      def initialize(base_url: nil, username: nil, password: nil, basic_auth: nil)
+      # @param config [Hash]
+      def initialize(config)
         super()
-        @base_url = base_url
-        @basic_auth = basic_auth
-        if basic_auth === true
-          @username = username
-          @password = password
-        end
+        @pure_config = config
       end
 
       # For given uuid, if necessary, fetch the metadata,
@@ -41,20 +33,21 @@ module Preservation
         end
         dir_base_path = Preservation.ingest_path
 
-        dataset = Puree::Dataset.new base_url: @base_url,
-                                     username: @username,
-                                     password: @password,
-                                     basic_auth: @basic_auth
-
-        dataset.find uuid: uuid
-        d = dataset.metadata
-        if d.empty?
+        dataset_extractor = Puree::Extractor::Dataset.new @pure_config
+        d = dataset_extractor.find uuid: uuid
+        if !d
           @logger.error 'No metadata for ' + uuid
           exit
         end
 
+        metadata_record = {
+          doi:   d.doi,
+          uuid:  d.uuid,
+          title: d.title
+        }
+
         # configurable to become more human-readable
-        dir_name = Preservation::Builder.build_directory_name(d, dir_scheme)
+        dir_name = Preservation::Builder.build_directory_name(metadata_record, dir_scheme)
 
         # continue only if dir_name is not empty (e.g. because there was no DOI)
         # continue only if there is no DB entry
@@ -64,9 +57,9 @@ module Preservation
         if !dir_name.nil? &&
            !dir_name.empty? &&
            !Preservation::Report::Transfer.in_db?(dir_name) &&
-           !d['doi'].empty? &&
-           !d['file'].empty? &&
-           Preservation::Temporal.time_to_preserve?(d['modified'], delay)
+           d.doi &&
+           !d.files.empty? &&
+           Preservation::Temporal.time_to_preserve?(d.modified, delay)
 
           dir_file_path = dir_base_path + '/' + dir_name
           dir_metadata_path = dir_file_path + '/metadata/'
@@ -74,7 +67,7 @@ module Preservation
 
           # calculate total size of data files
           download_storage_required = 0
-          d['file'].each { |i| download_storage_required += i['size'].to_i }
+          d.files.each { |i| download_storage_required += i.size.to_i }
 
           # do we have enough space in filesystem to fetch data files?
           if Preservation::Storage.enough_storage_for_download? download_storage_required
@@ -87,27 +80,27 @@ module Preservation
           # continue only if files not present in ingest location
           if !File.size? metadata_filename
 
-            @logger.info 'Preparing ' + dir_name + ', Pure UUID ' + d['uuid']
+            @logger.info 'Preparing ' + dir_name + ', Pure UUID ' + d.uuid
 
             data = []
-            d['file'].each do |f|
+            d.files.each do |f|
               o = package_dataset_metadata d, f
               data << o
-              wget_str = Preservation::Builder.build_wget @username,
-                                                          @password,
-                                                          f['url']
+              wget_str = Preservation::Builder.build_wget @pure_config[:username],
+                                                          @pure_config[:password],
+                                                          f.url
 
               Dir.mkdir(dir_file_path) if !Dir.exists?(dir_file_path)
 
               # fetch the file
               Dir.chdir(dir_file_path) do
                 # puts 'Changing dir to ' + Dir.pwd
-                # puts 'Size of ' + f['name'] + ' is ' + File.size(f['name']).to_s
-                if File.size?(f['name'])
+                # puts 'Size of ' + f.name + ' is ' + File.size(f.name).to_s
+                if File.size?(f.name)
                   # puts 'Should be deleting ' + f['name']
-                  File.delete(f['name'])
+                  File.delete(f.name)
                 end
-                # puts f['name'] + ' missing or empty'
+                # puts f.name + ' missing or empty'
                 # puts wget_str
                 `#{wget_str}`
               end
@@ -121,11 +114,11 @@ module Preservation
             @logger.info 'Created ' + metadata_filename
             success = true
           else
-            @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d['uuid'] +
+            @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d.uuid +
                          ' because ' + metadata_filename + ' exists'
           end
         else
-          @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d['uuid']
+          @logger.info 'Skipping ' + dir_name + ', Pure UUID ' + d.uuid
         end
         success
       end
@@ -140,12 +133,9 @@ module Preservation
       def prepare_dataset_batch(max: nil,
                                 dir_scheme: :uuid,
                                 delay: 30)
-        collection = Puree::Collection.new resource:  :dataset,
-                                           base_url:   @base_url,
-                                           username:   @username,
-                                           password:   @password,
-                                           basic_auth: @basic_auth
-        count = collection.count
+        collection_extractor = Puree::Extractor::Collection.new config:   @pure_config,
+                                                                resource: :dataset
+        count = collection_extractor.count
 
         max = count if max.nil?
 
@@ -153,16 +143,10 @@ module Preservation
         num_prepared = 0
         0.step(count, batch_size) do |n|
 
-          minimal_metadata = collection.find limit:  batch_size,
-                                             offset: n,
-                                             full:   false
-          uuids = []
-          minimal_metadata.each do |i|
-            uuids << i['uuid']
-          end
-
-          uuids.each do |uuid|
-            success = prepare_dataset uuid:       uuid,
+          dataset_collection = collection_extractor.find limit:  batch_size,
+                                                         offset: n
+          dataset_collection.each do |dataset|
+            success = prepare_dataset uuid:       dataset.uuid,
                                       dir_scheme: dir_scheme.to_sym,
                                       delay:      delay
 
@@ -176,73 +160,89 @@ module Preservation
 
       def package_dataset_metadata(d, f)
           o = {}
-          o['filename'] = 'objects/' + f['name']
-          o['dc.title'] = d['title']
-          if !d['description'].empty?
-            o['dc.description'] = d['description']
+          o['filename'] = 'objects/' + f.name
+          o['dc.title'] = d.title
+          if d.description
+            o['dc.description'] = d.description
           end
-          o['dcterms.created'] = d['created']
-          if !d['available']['year'].empty?
-            o['dcterms.available'] = Puree::Date.iso(d['available'])
+          o['dcterms.created'] = d.created.to_s
+          if d.available
+            o['dcterms.available'] = d.available
           end
-          o['dc.publisher'] = d['publisher']
-          if !d['doi'].empty?
-            o['dc.identifier'] = d['doi']
+          o['dc.publisher'] = d.publisher
+          if d.doi
+            o['dc.identifier'] = d.doi
           end
-          if !d['spatial'].empty?
-            o['dcterms.spatial'] = d['spatial']
+          if !d.spatial_places.empty?
+            o['dcterms.spatial'] = d.spatial_places
           end
-          if !d['temporal']['start']['year'].empty?
-            temporal_range = ''
-            temporal_range << Puree::Date.iso(d['temporal']['start'])
-            if !d['temporal']['end']['year'].empty?
-              temporal_range << '/'
-              temporal_range << Puree::Date.iso(d['temporal']['end'])
+
+          temporal = d.temporal
+          temporal_range = ''
+          if temporal
+            if temporal.start
+              temporal_range << temporal.start.strftime("%F")
+              if temporal.end
+                temporal_range << '/'
+                temporal_range << temporal.end.strftime("%F")
+              end
+              o['dcterms.temporal'] = temporal_range
             end
-            o['dcterms.temporal'] = temporal_range
           end
+
           creators = []
           contributors = []
-          person_types = %w(internal external other)
-          person_types.each do |person_type|
-            d['person'][person_type].each do |i|
-              if i['role'] == 'Creator'
-                creator = i['name']['last'] + ', ' + i['name']['first']
-                creators << creator
+          all_persons = []
+          all_persons << d.persons_internal
+          all_persons << d.persons_external
+          all_persons << d.persons_other
+          all_persons.each do |person_type|
+            person_type.each do |i|
+              name = i.name.last_first if i.name
+              if i.role == 'Creator'
+                creators << name if name
               end
-              if i['role'] == 'Contributor'
-                contributor = i['name']['last'] + ', ' + i['name']['first']
-                contributors << contributor
+              if i.role == 'Contributor'
+                contributors << name if name
               end
             end
           end
+
           o['dc.creator'] = creators
           if !contributors.empty?
             o['dc.contributor'] = contributors
           end
           keywords = []
-          d['keyword'].each { |i|
+          d.keywords.each { |i|
             keywords << i
           }
           if !keywords.empty?
             o['dc.subject'] = keywords
           end
-          if !f['license']['name'].empty?
-            o['dcterms.license'] = f['license']['name']
-          end
+
+          o['dcterms.license'] = f.license.name if f.license
           # o['dc.format'] = f['mime']
 
           related = []
-          publications = d['publication']
+          publications = d.publications
           publications.each do |i|
-            pub = Puree::Publication.new base_url: @base_url,
-                                         username: @username,
-                                         password: @password,
-                                         basic_auth: @basic_auth
-            pub.find uuid: i['uuid']
-            doi = pub.doi
-            if doi
-              related << doi
+            if i.type === 'Dataset'
+              extractor = Puree::Extractor::Dataset.new @pure_config
+              dataset = extractor.find uuid: i.uuid
+              doi = dataset.doi
+              if doi
+                related << doi
+              end
+            end
+            # TO DO
+            # Should Puree return single DOI for publication?
+            if i.type === 'Publication'
+              extractor = Puree::Extractor::Publication.new @pure_config
+              publication = extractor.find uuid: i.uuid
+              dois = publication.dois
+              if !dois.empty?
+                related << dois[0]
+              end
             end
           end
           if !related.empty?

@@ -35,9 +35,10 @@ module Preservation
     # @param directory_name_scheme [Symbol]
     # @return [String]
     def self.build_directory_name(metadata_record, directory_name_scheme)
-      doi = metadata_record['doi']
-      uuid = metadata_record['uuid']
-      title = metadata_record['title'].strip.gsub(' ', '-').gsub('/', '-')
+      puts metadata_record
+      doi = metadata_record[:doi]
+      uuid = metadata_record[:uuid]
+      title = metadata_record[:title].strip.gsub(' ', '-').gsub('/', '-')
       time = Time.new
       date = time.strftime("%Y-%m-%d")
       time = time.strftime("%H:%M:%S")

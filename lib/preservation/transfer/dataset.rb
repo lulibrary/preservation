@@ -4,9 +4,9 @@ module Preservation
   #
   module Transfer
 
-    # Transfer preparation for Pure
+    # Transfer preparation for dataset
     #
-    class Pure < Ingest
+    class Dataset < Preservation::Transfer::Base
 
       # @param config [Hash]
       def initialize(config)
@@ -22,9 +22,9 @@ module Preservation
       # @param dir_scheme [Symbol] how to make directory name
       # @param delay [Integer] days to wait (after modification date) before preserving
       # @return [Boolean] indicates presence of metadata description file
-      def prepare_dataset(uuid: nil,
-                          dir_scheme: :uuid,
-                          delay: 0)
+      def prepare(uuid: nil,
+                  dir_scheme: :uuid,
+                  delay: 0)
         success = false
 
         if uuid.nil?
@@ -45,6 +45,13 @@ module Preservation
           uuid:  d.uuid,
           title: d.title
         }
+
+        puts metadata_record
+        # if d.doi
+        #   raise 'doi'
+        # else
+        #   raise 'no doi'
+        # end
 
         # configurable to become more human-readable
         dir_name = Preservation::Builder.build_directory_name(metadata_record, dir_scheme)
@@ -84,7 +91,7 @@ module Preservation
 
             data = []
             d.files.each do |f|
-              o = package_dataset_metadata d, f
+              o = package_metadata d, f
               data << o
               wget_str = Preservation::Builder.build_wget @pure_config[:username],
                                                           @pure_config[:password],
@@ -130,9 +137,9 @@ module Preservation
       # @param max [Integer] maximum to prepare, omit to set no maximum
       # @param dir_scheme [Symbol] how to make directory name
       # @param delay [Integer] days to wait (after modification date) before preserving
-      def prepare_dataset_batch(max: nil,
-                                dir_scheme: :uuid,
-                                delay: 30)
+      def prepare_batch(max: nil,
+                        dir_scheme: :uuid,
+                        delay: 30)
         collection_extractor = Puree::Extractor::Collection.new config:   @pure_config,
                                                                 resource: :dataset
         count = collection_extractor.count
@@ -146,9 +153,9 @@ module Preservation
           dataset_collection = collection_extractor.find limit:  batch_size,
                                                          offset: n
           dataset_collection.each do |dataset|
-            success = prepare_dataset uuid:       dataset.uuid,
-                                      dir_scheme: dir_scheme.to_sym,
-                                      delay:      delay
+            success = prepare uuid:       dataset.uuid,
+                              dir_scheme: dir_scheme.to_sym,
+                              delay:      delay
 
             num_prepared += 1 if success
             exit if num_prepared == max
@@ -158,7 +165,7 @@ module Preservation
 
       private
 
-      def package_dataset_metadata(d, f)
+      def package_metadata(d, f)
           o = {}
           o['filename'] = 'objects/' + f.name
           o['dc.title'] = d.title
@@ -221,7 +228,7 @@ module Preservation
           end
 
           o['dcterms.license'] = f.license.name if f.license
-          # o['dc.format'] = f['mime']
+          # o['dc.format'] = f.mime
 
           related = []
           publications = d.publications
@@ -234,13 +241,12 @@ module Preservation
                 related << doi
               end
             end
-            # TO DO
-            # Should Puree return single DOI for publication?
             if i.type === 'Publication'
               extractor = Puree::Extractor::Publication.new @pure_config
               publication = extractor.find uuid: i.uuid
               dois = publication.dois
               if !dois.empty?
+                # Only one needed
                 related << dois[0]
               end
             end

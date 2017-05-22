@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.0.0 - 2017-05-22
+### Fixed
+- Transfer - handling DOIs of related works for both datasets and publications.
+- Transfer - handling missing DOIs of related works.
+
 ## 0.4.2 - 2017-05-18
 ### Fixed
 - Transfer - presence check for DOI of a related work.

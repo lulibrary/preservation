@@ -46,13 +46,6 @@ module Preservation
           title: d.title
         }
 
-        puts metadata_record
-        # if d.doi
-        #   raise 'doi'
-        # else
-        #   raise 'no doi'
-        # end
-
         # configurable to become more human-readable
         dir_name = Preservation::Builder.build_directory_name(metadata_record, dir_scheme)
 

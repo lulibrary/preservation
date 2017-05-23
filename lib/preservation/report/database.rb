@@ -13,8 +13,7 @@ module Preservation
       # @return [SQLite3::Database]
        def self.db_connection(db_path)
         if db_path.nil?
-          puts 'Missing db_path'
-          exit
+          raise 'Missing db_path'
         end
         @db ||= SQLite3::Database.new db_path
       end

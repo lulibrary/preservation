@@ -165,7 +165,7 @@ module Preservation
           if d.description
             o['dc.description'] = d.description
           end
-          o['dcterms.created'] = d.created.utc.iso8601
+          o['dcterms.created'] = d.created.strftime("%F")
           if d.available
             o['dcterms.available'] = d.available.strftime("%F")
           end

@@ -37,22 +37,36 @@ Preservation.configure do |config|
 end
 ```
 
-
-### Transfer
-Create a transfer using the Pure Research Information System as a data source.
+Create a hash for passing to a transfer.
 
 ```ruby
-transfer = Preservation::Transfer::Pure.new base_url:   ENV['PURE_BASE_URL'],
-                                            username:   ENV['PURE_USERNAME'],
-                                            password:   ENV['PURE_PASSWORD'],
-                                            basic_auth: true
+# Pure host with authentication.
+config = {
+  url:      ENV['PURE_URL'],
+  username: ENV['PURE_USERNAME'],
+  password: ENV['PURE_PASSWORD']
+}
 ```
 
-For a Pure dataset, if necessary, fetch the metadata, prepare
-a directory in the ingest path and populate it with the files and JSON description file.
+```ruby
+# Pure host without authentication.
+config = {
+  url: ENV['PURE_URL']
+}
+```
+
+### Transfer
+Configure a transfer to retrieve data from a Pure host.
 
 ```ruby
-transfer.prepare_dataset uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+transfer = Preservation::Transfer::Dataset.new config
+```
+
+If necessary, fetch the metadata, prepare a directory in the ingest path and
+populate it with the files and JSON description file.
+
+```ruby
+transfer.prepare uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 ```
 
 Free up disk space for completed transfers. Can be done at any time.

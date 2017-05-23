@@ -4,7 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
-## 0.5.0 - 2017-05-22
+## 0.5.0 - 2017-05-23
+### Changed
+- Transfer - created as ISO8601 date format.
+
 ### Fixed
 - Transfer - handling DOIs of related works for both datasets and publications.
 - Transfer - handling missing DOIs of related works.

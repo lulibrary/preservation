@@ -11,7 +11,7 @@ module Preservation
       # @param config [Hash]
       def initialize(config)
         super()
-        @pure_config = config
+        @config = config
       end
 
       # For given uuid, if necessary, fetch the metadata,
@@ -33,7 +33,7 @@ module Preservation
         end
         dir_base_path = Preservation.ingest_path
 
-        dataset_extractor = Puree::Extractor::Dataset.new @pure_config
+        dataset_extractor = Puree::Extractor::Dataset.new @config
         d = dataset_extractor.find uuid: uuid
         if !d
           @logger.error 'No metadata for ' + uuid
@@ -86,8 +86,8 @@ module Preservation
             d.files.each do |f|
               o = package_metadata d, f
               data << o
-              wget_str = Preservation::Builder.build_wget @pure_config[:username],
-                                                          @pure_config[:password],
+              wget_str = Preservation::Builder.build_wget @config[:username],
+                                                          @config[:password],
                                                           f.url
 
               Dir.mkdir(dir_file_path) if !Dir.exists?(dir_file_path)
@@ -133,7 +133,7 @@ module Preservation
       def prepare_batch(max: nil,
                         dir_scheme: :uuid,
                         delay: 30)
-        collection_extractor = Puree::Extractor::Collection.new config:   @pure_config,
+        collection_extractor = Puree::Extractor::Collection.new config:   @config,
                                                                 resource: :dataset
         count = collection_extractor.count
 
@@ -227,7 +227,7 @@ module Preservation
           publications = d.publications
           publications.each do |i|
             if i.type === 'Dataset'
-              extractor = Puree::Extractor::Dataset.new @pure_config
+              extractor = Puree::Extractor::Dataset.new @config
               dataset = extractor.find uuid: i.uuid
               doi = dataset.doi
               if doi
@@ -235,7 +235,7 @@ module Preservation
               end
             end
             if i.type === 'Publication'
-              extractor = Puree::Extractor::Publication.new @pure_config
+              extractor = Puree::Extractor::Publication.new @config
               publication = extractor.find uuid: i.uuid
               dois = publication.dois
               if !dois.empty?

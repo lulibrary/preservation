@@ -165,9 +165,9 @@ module Preservation
           if d.description
             o['dc.description'] = d.description
           end
-          o['dcterms.created'] = d.created.to_s
+          o['dcterms.created'] = d.created.strftime("%F")
           if d.available
-            o['dcterms.available'] = d.available
+            o['dcterms.available'] = d.available.strftime("%F")
           end
           o['dc.publisher'] = d.publisher
           if d.doi

@@ -116,6 +116,7 @@ The following are permitted values for the dir_scheme parameter:
 A transfer-ready directory, with a name built according to the directory scheme
 specified, in this case doi_short. This particular example has only one file
 Ebola_data_Jun15.zip in the dataset.
+
 ```
 .
 ├── 10.17635-lancaster-researchdata-6
@@ -181,7 +182,7 @@ Preservation::Report::Transfer.exception
 
 Formatted as JSON:
 
-```javascript
+```json
 {
   "pending": {
     "count": 3,

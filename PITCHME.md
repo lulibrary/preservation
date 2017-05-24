@@ -1,8 +1,8 @@
 #HSLIDE
 
 ## Rationale
-Archivematica's <a href="https://github.com/artefactual/automation-tools" target="_blank">Automation Tools</a>
-work with files and descriptive metadata which must be provided in a certain way.
+Archivematica works with files and descriptive metadata which must be provided
+in a certain way.
 
 #HSLIDE
 
@@ -18,20 +18,37 @@ work with files and descriptive metadata which must be provided in a certain way
 
 ##  Preservation: transfer
 
-Create a transfer using the Pure Research Information System as a data source.
-
 ```ruby
-transfer = Preservation::Transfer::Pure.new base_url:   ENV['PURE_BASE_URL'],
-                                            username:   ENV['PURE_USERNAME'],
-                                            password:   ENV['PURE_PASSWORD'],
-                                            basic_auth: true
+# Configure Preservation
+Preservation.configure do |config|
+  config.db_path     = ENV['ARCHIVEMATICA_DB_PATH']
+  config.ingest_path = ENV['ARCHIVEMATICA_INGEST_PATH']
+  config.log_path    = ENV['PRESERVATION_LOG_PATH']
+end
 ```
 
-For a Pure dataset, if necessary, fetch the metadata, prepare
-a directory in the ingest path and populate it with the files and JSON description file.
+Create a hash for passing to a transfer.
 
 ```ruby
-transfer.prepare_dataset uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+# Pure host with authentication.
+config = {
+  url:      ENV['PURE_URL'],
+  username: ENV['PURE_USERNAME'],
+  password: ENV['PURE_PASSWORD']
+}
+```
+
+Configure a transfer to retrieve data from a Pure host.
+
+```ruby
+transfer = Preservation::Transfer::Dataset.new config
+```
+
+If necessary, fetch the metadata, prepare a directory in the ingest path and
+populate it with the files and JSON description file.
+
+```ruby
+transfer.prepare uuid: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 ```
 
 Free up disk space for completed transfers. Can be done at any time.
@@ -61,7 +78,7 @@ Preservation::Storage.cleanup
     "filename": "objects/Ebola_data_Jun15.zip",
     "dc.title": "Ebolavirus evolution 2013-2015",
     "dc.description": "Data used for analysis of selection and evolutionary rate in Zaire Ebolavirus variant Makona",
-    "dcterms.created": "2015-06-04T16:11:34.713+01:00",
+    "dcterms.created": "2015-06-04",
     "dcterms.available": "2015-06-04",
     "dc.publisher": "Lancaster University",
     "dc.identifier": "http://dx.doi.org/10.17635/lancaster/researchdata/6",
@@ -109,11 +126,3 @@ Preservation::Report::Transfer.exception
 <a href="https://rubygems.org/gems/preservation" target="_blank">RubyGems</a>
 
 <a href="https://github.com/lulibrary/preservation" target="_blank">GitHub</a>
-
-#HSLIDE
-
-## Documentation
-
-<a href="http://www.rubydoc.info/gems/preservation" target="_blank">API in YARD</a>
-
-<a href="https://aalbinclark.gitbooks.io/preservation" target="_blank">Detailed usage in GitBook</a>

@@ -207,7 +207,7 @@ Formatted as JSON:
     "current": 1,
     "id": 91,
     "uuid": "ebf048c3-0ca8-409c-94cf-ab3e5d97e901",
-    "path_timestamp": "2016-09-28 17:09:33 +0100
+    "path_timestamp": "2016-09-28 17:09:33 +0100"
   },
   "failed": {
     "count": 0

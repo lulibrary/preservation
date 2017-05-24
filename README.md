@@ -116,6 +116,7 @@ The following are permitted values for the dir_scheme parameter:
 A transfer-ready directory, with a name built according to the directory scheme
 specified, in this case doi_short. This particular example has only one file
 Ebola_data_Jun15.zip in the dataset.
+
 ```
 .
 ├── 10.17635-lancaster-researchdata-6
@@ -207,7 +208,7 @@ Formatted as JSON:
     "current": 1,
     "id": 91,
     "uuid": "ebf048c3-0ca8-409c-94cf-ab3e5d97e901",
-    "path_timestamp": "2016-09-28 17:09:33 +0100
+    "path_timestamp": "2016-09-28 17:09:33 +0100"
   },
   "failed": {
     "count": 0

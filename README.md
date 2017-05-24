@@ -181,7 +181,7 @@ Preservation::Report::Transfer.exception
 
 Formatted as JSON:
 
-```json
+```javascript
 {
   "pending": {
     "count": 3,

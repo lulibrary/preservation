@@ -34,6 +34,7 @@ module Preservation
         dir_base_path = Preservation.ingest_path
 
         dataset_extractor = Puree::Extractor::Dataset.new @config
+
         d = dataset_extractor.find uuid: uuid
         if !d
           @logger.error 'No metadata for ' + uuid

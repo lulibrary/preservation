@@ -2,4 +2,4 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 Minitest::Reporters.use!
 
-require 'preservation'
+require_relative '../lib/preservation.rb'

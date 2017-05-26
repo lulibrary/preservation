@@ -23,6 +23,4 @@ loading by Archivematica.}
   spec.add_runtime_dependency 'free_disk_space', '~> 1.0'
   spec.add_runtime_dependency 'puree', '~> 1.3'
   spec.add_runtime_dependency 'sqlite3', '~> 1.3'
-
-  spec.add_development_dependency 'minitest-reporters', '~> 1.1'
 end
